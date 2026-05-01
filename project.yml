@@ -1,2 +1,23 @@
+name: App
+
+options:
+  bundleIdPrefix: com.tuempresa
+
 settings:
   CODE_SIGNING_ALLOWED: NO
+
+targets:
+  App:
+    type: application
+    platform: iOS
+    deploymentTarget: "13.0"
+
+    sources:
+      - path: App
+
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.tuempresa.app
+      INFOPLIST_FILE: App/Info.plist
+
+    scheme:
+      testTargets: []
