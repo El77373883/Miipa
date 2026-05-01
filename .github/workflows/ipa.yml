@@ -22,21 +22,6 @@ jobs:
       - name: Show Xcode version
         run: xcodebuild -version
 
-      - name: Create ExportOptions.plist
-        run: |
-          cat > ExportOptions.plist <<EOF
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>method</key>
-              <string>development</string>
-              <key>signingStyle</key>
-              <string>manual</string>
-          </dict>
-          </plist>
-          EOF
-
       - name: Build Archive (No Signing)
         run: |
           xcodebuild archive \
@@ -47,18 +32,15 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY=""
 
-      - name: Export IPA (No Signing)
+      - name: Create IPA manually
         run: |
-          mkdir -p build/ipa
-          xcodebuild -exportArchive \
-            -archivePath build/App.xcarchive \
-            -exportPath build/ipa \
-            -exportOptionsPlist ExportOptions.plist \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO
+          mkdir -p build/Payload
+          cp -R build/App.xcarchive/Products/Applications/App.app build/Payload/
+          cd build
+          zip -r app.ipa Payload
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
           name: app-ipa
-          path: build/ipa/*.ipa
+          path: build/app.ipa
