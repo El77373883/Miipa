@@ -1,0 +1,9 @@
+name: App
+targets:
+  App:
+    type: application
+    platform: iOS
+    sources: [App]
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.test.ios
+      INFOPLIST_FILE: App/Info.plist
