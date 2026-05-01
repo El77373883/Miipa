@@ -1,9 +1,9 @@
-name: Build IPA
+name: Build IPA (No Signing)
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -16,8 +16,49 @@ jobs:
       - name: Install XcodeGen
         run: brew install xcodegen
 
-      - name: Generate project
+      - name: Generate Xcode Project
         run: xcodegen generate
 
-      - name: Build
-        run: xcodebuild -scheme App -sdk iphoneos -configuration Release
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Create ExportOptions.plist
+        run: |
+          cat > ExportOptions.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>development</string>
+              <key>signingStyle</key>
+              <string>manual</string>
+          </dict>
+          </plist>
+          EOF
+
+      - name: Build Archive (No Signing)
+        run: |
+          xcodebuild archive \
+            -scheme App \
+            -sdk iphoneos \
+            -archivePath build/App.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+
+      - name: Export IPA (No Signing)
+        run: |
+          mkdir -p build/ipa
+          xcodebuild -exportArchive \
+            -archivePath build/App.xcarchive \
+            -exportPath build/ipa \
+            -exportOptionsPlist ExportOptions.plist \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-ipa
+          path: build/ipa/*.ipa
