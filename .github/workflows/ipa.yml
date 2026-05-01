@@ -1,32 +1,10 @@
-name: Crear IPA
+name: Hola
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: macos-latest
+  test:
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Instalar XcodeGen
-        run: brew install xcodegen
-      
-      - name: Generar proyecto
-        run: cd App && xcodegen generate
-      
-      - name: Compilar
-        run: |
-          xcodebuild -project App/App.xcodeproj -scheme App -sdk iphoneos -archivePath $RUNNER_TEMP/App.xcarchive CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO archive
-      
-      - name: Crear IPA
-        run: |
-          APP=$(find $RUNNER_TEMP/App.xcarchive/Products/Applications -name "*.app" -type d | head -1)
-          mkdir Payload
-          cp -r "$APP" Payload/
-          zip -r App.ipa Payload
-          mv App.ipa $RUNNER_TEMP/
-      
-      - uses: actions/upload-artifact@v4
-        with:
-          name: App.ipa
-          path: ${{ runner.temp }}/App.ipa
+      - run: echo "si funciona"
